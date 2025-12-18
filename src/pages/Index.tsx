@@ -12,6 +12,8 @@ const Index = () => {
   const [selectedAge, setSelectedAge] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('');
   const [searchResults, setSearchResults] = useState<string[]>([]);
+  const [selectedDiagnosis, setSelectedDiagnosis] = useState('');
+  const [sanatoriumRecommendations, setSanatoriumRecommendations] = useState<any[]>([]);
 
   const searchableContent = [
     { keywords: ['взрослая', 'карта', '072', 'форма'], target: '#info', label: 'Взрослая санаторно-курортная карта (Форма 072/у)' },
@@ -90,6 +92,66 @@ const Index = () => {
     { title: 'Анализы', content: 'ОАК, ОАМ, ЭКГ, флюорография, осмотр терапевта', icon: 'FileText' },
     { title: 'Противопоказания', content: 'Острые заболевания, обострения хронических болезней', icon: 'AlertCircle' },
   ];
+
+  const diagnosisDatabase = {
+    'cardio': {
+      name: 'Сердечно-сосудистые заболевания',
+      sanatoriums: [
+        { name: 'Кисловодск "Плаза"', region: 'Кавказ', specialty: 'Кардиология', price: 'От 3500₽/день', features: ['Минеральные воды', 'Терренкур', 'ЛФК'] },
+        { name: 'Сочи "Актер"', region: 'Черное море', specialty: 'Сердце и сосуды', price: 'От 4200₽/день', features: ['Бальнеотерапия', 'Массаж', 'Климатолечение'] },
+        { name: 'Кисловодск "Нарзан"', region: 'Кавказ', specialty: 'Кардиология', price: 'От 3200₽/день', features: ['Нарзанные ванны', 'Терренкур', 'Диетотерапия'] },
+      ]
+    },
+    'joint': {
+      name: 'Заболевания опорно-двигательного аппарата',
+      sanatoriums: [
+        { name: 'Пятигорск "Родник"', region: 'Кавказ', specialty: 'Суставы и позвоночник', price: 'От 3000₽/день', features: ['Грязелечение', 'Радоновые ванны', 'Массаж'] },
+        { name: 'Саки "Полтава"', region: 'Крым', specialty: 'Опорно-двигательный', price: 'От 3800₽/день', features: ['Сакские грязи', 'Бассейн', 'ЛФК'] },
+        { name: 'Анапа "ДиЛуч"', region: 'Черное море', specialty: 'Суставы', price: 'От 3500₽/день', features: ['Морелечение', 'Грязи', 'Физиотерапия'] },
+      ]
+    },
+    'nervous': {
+      name: 'Нервная система и стресс',
+      sanatoriums: [
+        { name: 'Алтай "Белокуриха"', region: 'Алтай', specialty: 'Неврология', price: 'От 3300₽/день', features: ['Радонотерапия', 'Тишина природы', 'Психотерапия'] },
+        { name: 'Сочи "Золотой колос"', region: 'Черное море', specialty: 'Антистресс', price: 'От 4000₽/день', features: ['Релаксация', 'Массаж', 'Ароматерапия'] },
+        { name: 'Подмосковье "Дорохово"', region: 'Московская область', specialty: 'Нервная система', price: 'От 2800₽/день', features: ['Тихая зона', 'Йога', 'Медитация'] },
+      ]
+    },
+    'respiratory': {
+      name: 'Органы дыхания',
+      sanatoriums: [
+        { name: 'Анапа "Русь"', region: 'Черное море', specialty: 'Легкие и бронхи', price: 'От 3600₽/день', features: ['Морской воздух', 'Ингаляции', 'Спелеотерапия'] },
+        { name: 'Кисловодск "Виктория"', region: 'Кавказ', specialty: 'Органы дыхания', price: 'От 3400₽/день', features: ['Горный воздух', 'Терренкур', 'Дыхательная гимнастика'] },
+        { name: 'Белокуриха "Россия"', region: 'Алтай', specialty: 'Дыхательная система', price: 'От 3200₽/день', features: ['Чистый воздух', 'Ингаляции', 'Климатолечение'] },
+      ]
+    },
+    'digestive': {
+      name: 'Желудочно-кишечный тракт',
+      sanatoriums: [
+        { name: 'Ессентуки "Виктория"', region: 'Кавказ', specialty: 'ЖКТ', price: 'От 3100₽/день', features: ['Минеральные воды', 'Диетотерапия', 'Питьевая галерея'] },
+        { name: 'Железноводск "Русь"', region: 'Кавказ', specialty: 'Пищеварение', price: 'От 2900₽/день', features: ['Лечебные воды', 'Диетическое питание', 'Терренкур'] },
+        { name: 'Трускавец "Кристалл"', region: 'Карпаты', specialty: 'ЖКТ', price: 'От 3500₽/день', features: ['Минеральные воды', 'SPA', 'Диетология'] },
+      ]
+    },
+    'rehabilitation': {
+      name: 'Реабилитация после COVID-19',
+      sanatoriums: [
+        { name: 'Сочи "Звездный"', region: 'Черное море', specialty: 'Реабилитация', price: 'От 4500₽/день', features: ['Комплексное восстановление', 'Кислородотерапия', 'ЛФК'] },
+        { name: 'Кисловодск "Целебный Нарзан"', region: 'Кавказ', specialty: 'Постковидная реабилитация', price: 'От 3800₽/день', features: ['Минеральные воды', 'Дыхательная гимнастика', 'Массаж'] },
+        { name: 'Подмосковье "Архангельское"', region: 'Московская область', specialty: 'Восстановление', price: 'От 3200₽/день', features: ['Комплексная программа', 'Физиотерапия', 'Диетотерапия'] },
+      ]
+    },
+  };
+
+  const handleDiagnosisSelect = (diagnosis: string) => {
+    setSelectedDiagnosis(diagnosis);
+    if (diagnosis && diagnosisDatabase[diagnosis as keyof typeof diagnosisDatabase]) {
+      setSanatoriumRecommendations(diagnosisDatabase[diagnosis as keyof typeof diagnosisDatabase].sanatoriums);
+    } else {
+      setSanatoriumRecommendations([]);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -270,34 +332,74 @@ const Index = () => {
 
             <TabsContent value="goals" className="space-y-4">
               <Card>
-                <CardContent className="pt-6">
-                  <ul className="grid md:grid-cols-2 gap-3">
-                    <li className="flex items-center gap-2">
-                      <Icon name="CheckCircle" className="text-primary" size={20} />
-                      <span>Реабилитация после операций</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Icon name="CheckCircle" className="text-primary" size={20} />
-                      <span>Профилактика заболеваний</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Icon name="CheckCircle" className="text-primary" size={20} />
-                      <span>Восстановление после COVID-19</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Icon name="CheckCircle" className="text-primary" size={20} />
-                      <span>Антистресс и релаксация</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Icon name="CheckCircle" className="text-primary" size={20} />
-                      <span>Очищение организма</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Icon name="CheckCircle" className="text-primary" size={20} />
-                      <span>Оздоровительный отдых</span>
-                    </li>
-                  </ul>
-                  <Button className="w-full mt-6">Подобрать санаторий по целям</Button>
+                <CardHeader>
+                  <CardTitle>Подбор санатория по диагнозу</CardTitle>
+                  <CardDescription>Выберите ваше заболевание или цель лечения</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <select
+                    className="w-full px-4 py-3 border rounded-md bg-white"
+                    value={selectedDiagnosis}
+                    onChange={(e) => handleDiagnosisSelect(e.target.value)}
+                  >
+                    <option value="">Выберите диагноз или цель...</option>
+                    <option value="cardio">Сердечно-сосудистые заболевания</option>
+                    <option value="joint">Заболевания опорно-двигательного аппарата</option>
+                    <option value="nervous">Нервная система и стресс</option>
+                    <option value="respiratory">Органы дыхания</option>
+                    <option value="digestive">Желудочно-кишечный тракт</option>
+                    <option value="rehabilitation">Реабилитация после COVID-19</option>
+                  </select>
+
+                  {sanatoriumRecommendations.length > 0 && (
+                    <div className="space-y-4 mt-6">
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div className="flex items-start gap-2">
+                          <Icon name="CheckCircle" className="text-green-600 mt-1" size={20} />
+                          <div>
+                            <p className="font-semibold text-green-900">
+                              Найдено {sanatoriumRecommendations.length} санаториев
+                            </p>
+                            <p className="text-sm text-green-700 mt-1">
+                              Специализация: {diagnosisDatabase[selectedDiagnosis as keyof typeof diagnosisDatabase]?.name}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {sanatoriumRecommendations.map((sanatorium, idx) => (
+                        <Card key={idx} className="hover-scale">
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <CardTitle className="text-lg">{sanatorium.name}</CardTitle>
+                                <CardDescription>{sanatorium.region}</CardDescription>
+                              </div>
+                              <Badge variant="secondary">{sanatorium.price}</Badge>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-3">
+                              <div className="flex items-center gap-2">
+                                <Icon name="Stethoscope" className="text-primary" size={18} />
+                                <span className="text-sm font-medium">{sanatorium.specialty}</span>
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                {sanatorium.features.map((feature: string, fIdx: number) => (
+                                  <Badge key={fIdx} variant="outline" className="text-xs">
+                                    {feature}
+                                  </Badge>
+                                ))}
+                              </div>
+                              <Button size="sm" className="w-full mt-2">
+                                Узнать подробнее
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>

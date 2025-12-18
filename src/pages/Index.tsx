@@ -11,6 +11,48 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAge, setSelectedAge] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('');
+  const [searchResults, setSearchResults] = useState<string[]>([]);
+
+  const searchableContent = [
+    { keywords: ['взрослая', 'карта', '072', 'форма'], target: '#info', label: 'Взрослая санаторно-курортная карта (Форма 072/у)' },
+    { keywords: ['детская', 'карта', '076', 'ребенок', 'дети'], target: '#info', label: 'Детская санаторно-курортная карта (Форма 076/у-04)' },
+    { keywords: ['поликлиника', 'бесплатно', 'оформить'], target: '#where', label: 'Оформление в поликлинике (бесплатно)' },
+    { keywords: ['медцентр', 'быстро', 'платно', 'стоимость'], target: '#where', label: 'Оформление в медцентре' },
+    { keywords: ['санаторий', 'выбрать', 'подобрать'], target: '#sanatoriums', label: 'Подбор санатория' },
+    { keywords: ['льготы', 'бесплатная', 'путевка', 'пенсионер'], target: '#sanatoriums', label: 'Льготные путевки' },
+    { keywords: ['анализы', 'обследование', 'оак', 'оам'], target: '#faq', label: 'Какие анализы нужны?' },
+    { keywords: ['срок', 'действия', 'период'], target: '#faq', label: 'Срок действия карты' },
+    { keywords: ['противопоказания', 'нельзя'], target: '#faq', label: 'Противопоказания' },
+  ];
+
+  const handleSearch = () => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    
+    const query = searchQuery.toLowerCase();
+    const results = searchableContent
+      .filter(item => item.keywords.some(keyword => keyword.includes(query) || query.includes(keyword)))
+      .map(item => item.label);
+    
+    setSearchResults(results);
+
+    if (results.length > 0) {
+      const firstMatch = searchableContent.find(item => 
+        item.keywords.some(keyword => keyword.includes(query) || query.includes(keyword))
+      );
+      if (firstMatch) {
+        document.querySelector(firstMatch.target)?.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
   const mainSections = [
     { id: 'adult', title: 'Взрослая карта', subtitle: 'Форма 072/у', icon: 'User' },
@@ -83,12 +125,31 @@ const Index = () => {
                 placeholder="Поиск по порталу..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={handleKeyPress}
                 className="text-lg py-6"
               />
-              <Button size="lg" className="px-8">
+              <Button size="lg" className="px-8" onClick={handleSearch}>
                 <Icon name="Search" size={20} />
               </Button>
             </div>
+            {searchResults.length > 0 && (
+              <div className="mt-4 bg-white rounded-lg shadow-lg p-4 text-left">
+                <p className="text-sm text-muted-foreground mb-2">Найдено результатов: {searchResults.length}</p>
+                <ul className="space-y-2">
+                  {searchResults.map((result, idx) => (
+                    <li key={idx} className="text-sm flex items-center gap-2">
+                      <Icon name="CheckCircle" className="text-primary" size={16} />
+                      {result}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {searchQuery && searchResults.length === 0 && searchQuery.length > 0 && (
+              <div className="mt-4 bg-white rounded-lg shadow-lg p-4 text-left">
+                <p className="text-sm text-muted-foreground">По запросу "{searchQuery}" ничего не найдено</p>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-4 justify-center">
